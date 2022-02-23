@@ -72,6 +72,11 @@ class HomeView extends StatelessWidget {
               _showSnackbar(result);
             },
           ),
+          ListTile(
+            title: Text("导航-not found"),
+            subtitle: Text('Get.toNamed("/aaa/bbb/ccc")'),
+            onTap: () => Get.toNamed("/aaa/bbb/ccc"),
+          ),
         ],
       ),
     );

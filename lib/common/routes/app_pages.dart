@@ -1,6 +1,7 @@
 import 'package:flutter_app/pages/home/index.dart';
 import 'package:flutter_app/pages/list/index.dart';
 import 'package:flutter_app/pages/list_detail/index.dart';
+import 'package:flutter_app/pages/notfound/index.dart';
 import 'package:get/get.dart';
 
 part 'app_routes.dart';
@@ -31,4 +32,9 @@ class AppPages {
       ],
     ),
   ];
+
+  static final unknownRoute = GetPage(
+    name: AppRoutes.NotFound,
+    page: () => NotfoundView(),
+  );
 }
