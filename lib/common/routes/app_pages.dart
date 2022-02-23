@@ -15,11 +15,16 @@ class AppPages {
       children: [
         GetPage(
           name: AppRoutes.List,
-          page: () => ListView(),
+          page: () => ListIndexView(),
           children: [
             GetPage(
               name: AppRoutes.Detail,
               page: () => DetailView(),
+            ),
+            GetPage(
+              name: AppRoutes.Detail_ID,
+              page: () => DetailView(),
+              transition: Transition.downToUp,
             ),
           ],
         ),

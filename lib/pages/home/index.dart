@@ -30,6 +30,16 @@ class HomeView extends StatelessWidget {
             subtitle: Text("Get.to(DetailView())"),
             onTap: () => Get.to(DetailView()),
           ),
+          ListTile(
+            title: Text("导航-清除上一个"),
+            subtitle: Text("Get.off(DetailView())"),
+            onTap: () => Get.off(DetailView()),
+          ),
+          ListTile(
+            title: Text("导航-清除所有"),
+            subtitle: Text("Get.offAll(DetailView())"),
+            onTap: () => Get.offAll(DetailView()),
+          ),
         ],
       ),
     );
