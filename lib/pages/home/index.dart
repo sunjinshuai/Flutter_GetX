@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/common/routes/app_pages.dart';
 import 'package:flutter_app/pages/list_detail/index.dart';
 import 'package:get/get.dart';
 
@@ -76,6 +77,11 @@ class HomeView extends StatelessWidget {
             title: Text("导航-not found"),
             subtitle: Text('Get.toNamed("/aaa/bbb/ccc")'),
             onTap: () => Get.toNamed("/aaa/bbb/ccc"),
+          ),
+          ListTile(
+            title: Text("导航-中间件-认证Auth"),
+            subtitle: Text('Get.toNamed("/my")'),
+            onTap: () => Get.toNamed('/my'),
           ),
         ],
       ),

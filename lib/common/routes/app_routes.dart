@@ -6,4 +6,6 @@ abstract class AppRoutes {
   static const Detail = '/detail';
   static const Detail_ID = '/detail/:id';
   static const NotFound = '/notfound';
+  static const Login = '/login';
+  static const My = '/my';
 }
