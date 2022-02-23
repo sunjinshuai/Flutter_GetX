@@ -5,6 +5,12 @@ import 'package:get/get.dart';
 class HomeView extends StatelessWidget {
   const HomeView({Key? key}) : super(key: key);
 
+  _showSnackbar(Map? result) {
+    if (result != null) {
+      Get.snackbar("返回值", "success -> " + result["success"].toString());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,6 +45,32 @@ class HomeView extends StatelessWidget {
             title: Text("导航-清除所有"),
             subtitle: Text("Get.offAll(DetailView())"),
             onTap: () => Get.offAll(DetailView()),
+          ),
+          ListTile(
+            title: Text("导航-arguments传值+返回值"),
+            subtitle: Text(
+                'Get.toNamed("/home/list/detail", arguments: {"id": 999})'),
+            onTap: () async {
+              var result = await Get.toNamed("/home/list/detail",
+                  arguments: {"id": 999});
+              _showSnackbar(result);
+            },
+          ),
+          ListTile(
+            title: Text("导航-parameters传值+返回值"),
+            subtitle: Text('Get.toNamed("/home/list/detail?id=666")'),
+            onTap: () async {
+              var result = await Get.toNamed("/home/list/detail?id=666");
+              _showSnackbar(result);
+            },
+          ),
+          ListTile(
+            title: Text("导航-参数传值+返回值"),
+            subtitle: Text('Get.toNamed("/home/list/detail/777")'),
+            onTap: () async {
+              var result = await Get.toNamed("/home/list/detail/777");
+              _showSnackbar(result);
+            },
           ),
         ],
       ),
