@@ -5,6 +5,7 @@ import 'package:flutter_app/pages/list_detail/index.dart';
 import 'package:flutter_app/pages/login/index.dart';
 import 'package:flutter_app/pages/my/index.dart';
 import 'package:flutter_app/pages/notfound/index.dart';
+import 'package:flutter_app/pages/state_obx/index.dart';
 import 'package:get/get.dart';
 
 part 'app_routes.dart';
@@ -25,6 +26,19 @@ class AppPages {
       page: () => MyView(),
       middlewares: [
         RouteAuthMiddleware(priority: 1),
+      ],
+    ),
+
+    // 状态
+    // ValueBuilder
+    GetPage(
+      name: AppRoutes.State,
+      page: () => StateObxView(),
+      children: [
+        GetPage(
+          name: AppRoutes.Obx,
+          page: () => StateObxView(),
+        ),
       ],
     ),
 

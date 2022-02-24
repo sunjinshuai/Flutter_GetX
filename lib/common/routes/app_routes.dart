@@ -8,4 +8,7 @@ abstract class AppRoutes {
   static const NotFound = '/notfound';
   static const Login = '/login';
   static const My = '/my';
+
+  static const State = '/obx';
+  static const Obx = '/obx';
 }

@@ -212,3 +212,81 @@ GetStorage storage = GetStorage();
 storage.write('name', '岛上码农');
 storage.read('name');
 ```
+
+#### 状态管理
+Get 有两个不同的状态管理器：简单的状态管理器（GetBuilder）和响应式状态管理器（GetX）。
+
+响应式状态管理器
+
+* 第一种是使用 **`Rx{Type}`**。
+
+```dart
+// 建议使用初始值，但不是强制性的
+final name = RxString('');
+final isLogged = RxBool(false);
+final count = RxInt(0);
+final balance = RxDouble(0.0);
+final items = RxList<String>([]);
+final myMap = RxMap<String, int>({});
+```
+
+* 第二种是使用 **`Rx`**，规定泛型 `Rx<Type>`。
+
+```dart
+final name = Rx<String>('');
+final isLogged = Rx<Bool>(false);
+final count = Rx<Int>(0);
+final balance = Rx<Double>(0.0);
+final number = Rx<Num>(0)
+final items = Rx<List<String>>([]);
+final myMap = Rx<Map<String, int>>({});
+
+// 自定义类 - 可以是任何类
+final user = Rx<User>();
+```
+
+* 第三种更实用、更简单、更可取的方法，只需添加 **`.obs`** 作为`value`的属性。
+
+```dart
+final name = ''.obs;
+final isLogged = false.obs;
+final count = 0.obs;
+final balance = 0.0.obs;
+final number = 0.obs;
+final items = <String>[].obs;
+final myMap = <String, int>{}.obs;
+
+// 自定义类 - 可以是任何类
+final user = User().obs;
+```
+
+如何使用
+```dart
+// controller
+final count = 0.obs;
+Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Obx(...)"),
+      ),
+      body: Center(
+        child: Column(
+          children: [
+            Obx(() => Text("count1 -> " + count.toString())),
+            Obx(() => Text("count2 -> " + count.toString())),
+            Divider(),
+            ElevatedButton(
+              onPressed: () {
+                count.value++;
+              },
+              child: Text('add'),
+            ),
+          ],
+        ),
+      ),
+    );
+}
+```
+> 如果我在一个类中有 30 个变量，当我更新其中一个变量时，它会更新该类中**所有**的变量吗？
+
+不会，只会更新使用那个 _Rx_ 变量的**特定 Widget**。

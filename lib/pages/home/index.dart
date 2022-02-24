@@ -83,6 +83,13 @@ class HomeView extends StatelessWidget {
             subtitle: Text('Get.toNamed("/my")'),
             onTap: () => Get.toNamed('/my'),
           ),
+          Divider(),
+          // state 状态
+          ListTile(
+            title: Text("State-Obx"),
+            subtitle: Text('Get.toNamed(AppRoutes.Obx)'),
+            onTap: () => Get.toNamed(AppRoutes.State + AppRoutes.Obx),
+          ),
         ],
       ),
     );
