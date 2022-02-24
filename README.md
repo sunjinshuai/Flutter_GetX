@@ -314,8 +314,6 @@ GetBuilder<Controller>(
 //只在第一次时初始化你的控制器。第二次使用ReBuilder时，不要再使用同一控制器。一旦将控制器标记为 "init "的部件部署完毕，你的控制器将自动从内存中移除。你不必担心这个问题，Get会自动做到这一点，只是要确保你不要两次启动同一个控制器。
 ```
 
-
-
 如果你需要在许多其他地方使用你的控制器，并且在GetBuilder之外，只需在你的控制器中创建一个get，就可以轻松地拥有它。(或者使用`Get.find<Controller>()`)
 
 ```dart
@@ -348,3 +346,38 @@ FloatingActionButton(
 
 当你按下FloatingActionButton时，所有监听'counter'变量的widget都会自动更新。
 **适合控制多控制器、多状态更新，可精细控制初始、局部渲染。**
+
+#### Worker
+
+在前后端对接过程中，经常会遇到快速重复点击导致重复请求的问题，如果处理不好一方面容易产生垃圾数据，另一方面还增加了很多无谓请求，导致服务器请求数量过多。在 GetX 中，针对这种场景提供了一个 Worker 类以及几个勾子函数来解决这类问题。
+
+举个例子，某些购物 App 会提供互动游戏，通过在限定时间内点击的次数来刷红包或优惠券，这个时候我们会疯狂地点击天上掉下来的红包或者锦鲤，试想如果每次点击都请求后端，那如果是上万人都这么点击，服务器都会被点崩！对于这种情况，GetX 提供了一个 debounce 的勾子函数，这个函数在限定的时间内只会执行一次指定的回调动作：
+```
+Worker debounce<T>(
+  RxInterface<T> listener,
+  WorkerCallback<T> callback, {
+  Duration? time,
+  Function? onError,
+  void Function()? onDone,
+  bool? cancelOnError,
+});
+```
+然后有一个按钮每点击一次就给计数器的值加 1。如果手速够快，我们1秒钟可以点击很多次。这个时候假设我们要防抖，就可以将网络请求放到 callback 里，从而在限定的时间范围内，避免用于的疯狂点击造成过多网络请求。通过这种方式可以减少无谓的请求。这种场景还可以用于搜索场合，当在输入的时候，因为内容在变化，我们不用请求后端数据，而等到用户输入结束之后再请求，这样体验更好而且也能减少后端请求。
+
+在有些场合，我们需要限定一定时间内的请求次数，做类似限流的效果。比如，在点击按钮刷金币的行为，我们可以限制没 2 秒最多刷 1 次，这样1分钟内最多只能刷 30 次，在 GetX 中提供了一个 interval 的方法：
+```
+Worker interval<T>(
+  RxInterface<T> listener,
+  WorkerCallback<T> callback, {
+  Duration time = const Duration(seconds: 1),
+  dynamic condition = true,
+  Function? onError,
+  void Function()? onDone,
+  bool? cancelOnError,
+})
+```
+
+GetX 还提供了下面三种 Worker 勾子函数，函数的调用和 interval 一样。
+* once：状态变量变化时只执行一次，比如详情页面的刷新只更新一次浏览次数。
+* ever：每次变化都执行，可以用于点赞这种场合
+* everAll：用于列表类型状态变量，只要列表元素改变就会执行回调。

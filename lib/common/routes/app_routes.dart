@@ -13,4 +13,5 @@ abstract class AppRoutes {
   static const Obx = '/obx';
 
   static const GetBuilder = '/get_builder';
+  static const Workers = '/workers';
 }

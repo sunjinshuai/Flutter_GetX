@@ -7,6 +7,7 @@ import 'package:flutter_app/pages/my/index.dart';
 import 'package:flutter_app/pages/notfound/index.dart';
 import 'package:flutter_app/pages/state_getBuilder/index.dart';
 import 'package:flutter_app/pages/state_obx/index.dart';
+import 'package:flutter_app/pages/state_workers/index.dart';
 import 'package:get/get.dart';
 
 part 'app_routes.dart';
@@ -43,6 +44,10 @@ class AppPages {
         GetPage(
           name: AppRoutes.GetBuilder,
           page: () => TrafficLedPage(),
+        ),
+        GetPage(
+          name: AppRoutes.Workers,
+          page: () => StateWorkersView(),
         ),
       ],
     ),
