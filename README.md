@@ -216,7 +216,7 @@ storage.read('name');
 #### 状态管理
 Get 有两个不同的状态管理器：简单的状态管理器（GetBuilder）和响应式状态管理器（GetX）。
 
-响应式状态管理器
+##### 响应式状态管理器
 
 * 第一种是使用 **`Rx{Type}`**。
 
@@ -290,3 +290,61 @@ Widget build(BuildContext context) {
 > 如果我在一个类中有 30 个变量，当我更新其中一个变量时，它会更新该类中**所有**的变量吗？
 
 不会，只会更新使用那个 _Rx_ 变量的**特定 Widget**。
+
+##### 简单状态管理器
+对于有些场景，我们可能有多个组件共享一份状态数据，但是状态数据改变后可能只需要更新其中的一个或多个组件，而不是依赖状态的全部组件。这个时候我们就可以用到 GetX 的定向更新。
+GetX 的 GetBuilder 使用 id 参数实现定向刷新的特性。这种情况适用于多个组件共用一个状态对象，但更新条件不同的情况。
+
+```dart
+// 创建控制器类并扩展GetxController。
+class Controller extends GetxController {
+  int counter = 0;
+  void increment() {
+    counter++;
+    update(); // 当调用增量时，使用update()来更新用户界面上的计数器变量。
+  }
+}
+// 在你的Stateless/Stateful类中，当调用increment时，使用GetBuilder来更新Text。
+GetBuilder<Controller>(
+  init: Controller(), // 首次启动
+  builder: (_) => Text(
+    '${_.counter}',
+  ),
+)
+//只在第一次时初始化你的控制器。第二次使用ReBuilder时，不要再使用同一控制器。一旦将控制器标记为 "init "的部件部署完毕，你的控制器将自动从内存中移除。你不必担心这个问题，Get会自动做到这一点，只是要确保你不要两次启动同一个控制器。
+```
+
+
+
+如果你需要在许多其他地方使用你的控制器，并且在GetBuilder之外，只需在你的控制器中创建一个get，就可以轻松地拥有它。(或者使用`Get.find<Controller>()`)
+
+```dart
+class Controller extends GetxController {
+
+  /// 你不需要这个，我推荐使用它只是为了方便语法。
+  /// 用静态方法：Controller.to.increment()。
+  /// 没有静态方法的情况下：Get.find<Controller>().increment();
+  /// 使用这两种语法在性能上没有区别，也没有任何副作用。一个不需要类型，另一个IDE会自动完成。
+  static Controller get to => Get.find(); // 添加这一行
+
+  int counter = 0;
+  void increment() {
+    counter++;
+    update();
+  }
+}
+```
+
+然后你可以直接访问你的控制器，这样：
+
+```dart
+FloatingActionButton(
+  onPressed: () {
+    Controller.to.increment(),
+  } // 是不是贼简单！
+  child: Text("${Controller.to.counter}"),
+),
+```
+
+当你按下FloatingActionButton时，所有监听'counter'变量的widget都会自动更新。
+**适合控制多控制器、多状态更新，可精细控制初始、局部渲染。**

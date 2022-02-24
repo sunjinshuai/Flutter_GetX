@@ -5,6 +5,7 @@ import 'package:flutter_app/pages/list_detail/index.dart';
 import 'package:flutter_app/pages/login/index.dart';
 import 'package:flutter_app/pages/my/index.dart';
 import 'package:flutter_app/pages/notfound/index.dart';
+import 'package:flutter_app/pages/state_getBuilder/index.dart';
 import 'package:flutter_app/pages/state_obx/index.dart';
 import 'package:get/get.dart';
 
@@ -38,6 +39,10 @@ class AppPages {
         GetPage(
           name: AppRoutes.Obx,
           page: () => StateObxView(),
+        ),
+        GetPage(
+          name: AppRoutes.GetBuilder,
+          page: () => TrafficLedPage(),
         ),
       ],
     ),
