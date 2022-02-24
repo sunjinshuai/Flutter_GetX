@@ -5,6 +5,8 @@ import 'package:flutter_app/pages/list_detail/index.dart';
 import 'package:flutter_app/pages/login/index.dart';
 import 'package:flutter_app/pages/my/index.dart';
 import 'package:flutter_app/pages/notfound/index.dart';
+import 'package:flutter_app/pages/stateMixin/bindings.dart';
+import 'package:flutter_app/pages/stateMixin/index.dart';
 import 'package:flutter_app/pages/state_getBuilder/index.dart';
 import 'package:flutter_app/pages/state_obx/index.dart';
 import 'package:flutter_app/pages/state_workers/index.dart';
@@ -50,6 +52,12 @@ class AppPages {
           page: () => StateWorkersView(),
         ),
       ],
+    ),
+
+    GetPage(
+      name: AppRoutes.GetStateMixin,
+      binding: PersonalStateMixinBinding(),
+      page: () => PersonalHomePageMixin(),
     ),
 
     GetPage(

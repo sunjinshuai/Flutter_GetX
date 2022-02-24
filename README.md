@@ -381,3 +381,146 @@ GetX 还提供了下面三种 Worker 勾子函数，函数的调用和 interval 
 * once：状态变量变化时只执行一次，比如详情页面的刷新只更新一次浏览次数。
 * ever：每次变化都执行，可以用于点赞这种场合
 * everAll：用于列表类型状态变量，只要列表元素改变就会执行回调。
+
+#### StateMixin
+App 的大部分页面都会涉及到数据加载、错误、无数据和正常几个状态，在一开始的时候我们可能数据获取的状态枚举用 if...else 或者 switch 来显示不同的 Widget，这种方式会显得代码很丑陋，譬如下面这样的代码：
+
+```
+if (PersonalController.to.loadingStatus == LoadingStatus.loading) {
+  return Center(
+    child: Text('加载中...'),
+  );
+}
+if (PersonalController.to.loadingStatus == LoadingStatus.failed) {
+  return Center(
+    child: Text('请求失败'),
+  );
+}
+// 正常状态
+PersonalEntity personalProfile = PersonalController.to.personalProfile;
+return Stack(
+  ...
+);
+```
+
+这种情况实在是不够优雅，在 GetX 中提供了一种 StateMixin 的方式来解决这个问题。
+
+StateMixin 是 GetX 定义的一个 mixin，可以在状态数据中混入页面数据加载状态，包括了如下状态：
+
+* RxStatus.loading()：加载中；
+* RxStatus.success()：加载成功；
+* RxStatus.error([String? message])：加载失败，可以携带一个错误信息 message；
+* RxStatus.empty()：无数据。
+
+StateMixin 的用法如下：
+```
+class XXXController extends GetxController
+    with StateMixin<T>  {
+}
+```
+
+其中 T 为实际的状态类，可以定义为：
+```
+class PersonalMixinController extends GetxController
+    with StateMixin<PersonalEntity>  {
+}
+```
+
+然后 StateMixin 提供了一个 change 方法用于传递状态数据和状态给页面。
+```
+void change(T? newState, {RxStatus? status})
+```
+
+其中 newState 是新的状态数据，status 就是上面我们说的4种状态。这个方法会通知 Widget 刷新。
+
+GetX 提供了一个快捷的 Widget 用来访问容器中的 controller，即 GetView。GetView是一个继承 StatelessWidget的抽象类，实现很简单，只是定义了一个获取 controller 的 get 属性。
+```
+abstract class GetView<T> extends StatelessWidget {
+  const GetView({Key? key}) : super(key: key);
+
+  final String? tag = null;
+
+  T get controller => GetInstance().find<T>(tag: tag)!;
+
+  @override
+  Widget build(BuildContext context);
+}
+```
+
+通过继承 GetView，就可以直接使用controller.obx构建界面，而 controller.obx 最大的特点是针对 RxStatus 的4个状态分别定义了四个属性：
+```
+Widget obx(
+  NotifierBuilder<T?> widget, {
+  Widget Function(String? error)? onError,
+  Widget? onLoading,
+  Widget? onEmpty,
+})
+```
+
+* NotifierBuilder<T?> widget：实际就是一个携带状态变量，返回正常状态界面的函数，NotifierBuilder<T?>的定义如下。通过这个方法可以使用状态变量构建正常界面。
+* onError：错误时对应的 Widget构建函数，可以使用错误信息 error。
+* onLoading：加载时对应的 Widget；
+* onEmpty：数据为空时的 Widget。
+
+通过这种方式可以自动根据 change方法指定的 RxStatus 来构建不同状态的 UI 界面，从而避免了丑陋的 if...else 或 switch 语句。
+```
+class PersonalHomePageMixin extends GetView<PersonalMixinController> {
+  PersonalHomePageMixin({Key? key}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return controller.obx(
+      (personalEntity) => _PersonalHomePage(personalProfile: personalEntity!),
+      onLoading: Center(
+        child: CircularProgressIndicator(),
+      ),
+      onError: (error) => Center(
+        child: Text(error!),
+      ),
+      onEmpty: Center(
+        child: Text('暂无数据'),
+      ),
+    );
+  }
+}
+```
+
+对应的 PersonalMixinController 的代码如下：
+```
+class PersonalMixinController extends GetxController
+    with StateMixin<PersonalEntity> {
+  final String userId;
+  PersonalMixinController({required this.userId});
+  @override
+  void onInit() {
+    super.onInit();
+  }
+
+  @override
+  void onReady() {
+    super.onReady();
+    getPersonalProfile(userId);
+  }
+
+  void getPersonalProfile(String userId) async {
+    change(null, status: RxStatus.loading());
+    var personalProfile = await JuejinService().getPersonalProfile(userId);
+    if (personalProfile != null) {
+      change(personalProfile, status: RxStatus.success());
+    } else {
+      change(null, status: RxStatus.error('获取个人信息失败'));
+    }
+  }
+}
+```
+
+从 GetView 的源码可以看到，Controller 是从容器中获取的，这就需要使用 GetX 的容器，在使用 Controller 前注册到 GetX 容器中。
+```
+class PersonalStateMixinBinding implements Bindings {
+  @override
+  void dependencies() {
+    Get.lazyPut<PersonalMixinController>(
+      () => PersonalMixinController(userId: '1521379823060024'),
+    );
+  }
+}
+```

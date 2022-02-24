@@ -14,4 +14,5 @@ abstract class AppRoutes {
 
   static const GetBuilder = '/get_builder';
   static const Workers = '/workers';
+  static const GetStateMixin = '/get_state_mixin';
 }

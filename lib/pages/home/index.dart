@@ -90,7 +90,6 @@ class HomeView extends StatelessWidget {
             subtitle: Text('Get.toNamed(AppRoutes.Obx)'),
             onTap: () => Get.toNamed(AppRoutes.State + AppRoutes.Obx),
           ),
-
           ListTile(
             title: Text("State-GetBuilder"),
             subtitle: Text('Get.toNamed(AppRoutes.GetBuilder)'),
@@ -100,6 +99,11 @@ class HomeView extends StatelessWidget {
             title: Text("State-Workers"),
             subtitle: Text('Get.toNamed(AppRoutes.Workers)'),
             onTap: () => Get.toNamed(AppRoutes.State + AppRoutes.Workers),
+          ),
+          ListTile(
+            title: Text("State-Mixin"),
+            subtitle: Text('Get.toNamed(AppRoutes.GetStateMixin)'),
+            onTap: () => Get.toNamed(AppRoutes.GetStateMixin),
           ),
           Divider(),
         ],
