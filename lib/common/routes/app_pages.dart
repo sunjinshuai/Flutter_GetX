@@ -75,7 +75,6 @@ class AppPages {
             GetPage(
               name: AppRoutes.Detail_ID,
               page: () => DetailView(),
-              transition: Transition.downToUp,
             ),
           ],
         ),

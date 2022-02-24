@@ -40,7 +40,7 @@ class HomeView extends StatelessWidget {
           ListTile(
             title: Text("导航-清除上一个"),
             subtitle: Text("Get.off(DetailView())"),
-            onTap: () => Get.off(DetailView()),
+            onTap: () => Get.off(() => DetailView()),
           ),
           ListTile(
             title: Text("导航-清除所有"),

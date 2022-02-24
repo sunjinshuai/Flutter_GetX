@@ -14,12 +14,7 @@ class HttpUtil {
   static Dio? _dioInstance;
   static Dio getDioInstance() {
     if (_dioInstance == null) {
-      _dioInstance = Dio(BaseOptions(
-        baseUrl: 'http://localhost:3900/api/',
-        contentType: 'application/json',
-        connectTimeout: 30000,
-        receiveTimeout: 30000,
-      ));
+      _dioInstance = Dio();
     }
     return _dioInstance!;
   }
