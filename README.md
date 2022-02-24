@@ -524,3 +524,296 @@ class PersonalStateMixinBinding implements Bindings {
   }
 }
 ```
+# GetX三大功能之依赖注入DI(dependency-injection)
+## 概念
+-   Inversion of Control: `控制反转`是一种重要的面向对象编程原则，控制反转就是，关于一个对象如何获取他所依赖的对象的引用，这个责任的反转。
+
+    控制反转一般分为两种类型，`依赖注入`（Dependency Injection，简称DI）和依赖查找（Dependency Lookup）。依赖注入应用比较广泛。
+
+-   Dependency Injection: 依赖注入，依赖注入模式是指客户类Client不用自己来初始化(new)它所依赖的成员变量IServer，而是等待某个对象创建IServer的适当的(实现类）的对象并将它赋值给Client的成员变量。
+
+## sample
+
+```js
+classA {
+ AInterface a;  
+
+ A(){}
+ 
+ AMethod(){
+ a = new AInterfaceImpl();
+ }
+}
+```
+
+这里面 `Class A`与`AInterfaceImpl`就是依赖关系,如果想使用AInterface的另外一个实现就需要更改代码了,依赖注入就是为了解决这种耦合关系的
+
+使用new（对象创建)是一种硬编码,是代码耦合度变得很高,不方便测试.依赖注入简单的讲**就是通过外界传入依赖来进行成员变量的初始化**
+
+## 依赖注入的三种实现方式
+
+-   Contructor Injection(构造函数注入)
+
+```js
+ public interface IFather {
+  //method
+ }
+
+public class Human {
+ IFather father;
+ public Human(IFather father) {
+  this.father = father;
+ }
+}
+```
+
+-   基于setter,通过JavaBean的[属性](https://www.jb51.cc/tag/shuxing/)(setter[方法](https://www.jb51.cc/tag/fangfa/))为可服务对象指定服务
+
+```js
+public class Human {
+  IFather father;
+  public void setIFather(IFather father) {
+   this.father = father;
+  }
+}
+```
+-   接口注入
+```js
+// 注入[功能](https://www.jb51.cc/tag/gongneng/)的interface
+public interface InjectFinder {
+  void injectFinder(IFather father);
+}
+ // 让我们的Human实现接口
+public class Human implements InjectFinder {
+  IFather father;
+  public void injectFinder(IFather father) {
+   this.father = father;
+  }
+}
+```
+## 依赖注入的优点
+-   易于复用\
+    更容易换掉依赖项的实现。由于控制反转，代码重用得以改进，并且类不再控制其依赖项的创建方式，而是支持任何配置。
+
+-   易于重构\
+    依赖项的创建分离，可以在创建对象时或编译时进行检查、修改，一处修改，使用处不需修改。
+
+-   易于测试\
+    类不管理其依赖项，因此在测试时，可以传入不同的实现以测试所有不同用例。
+
+## GetX中如何使用依赖注入
+
+Get有一个简单而强大的依赖管理器，它允许你只用1行代码就能检索到 Controller 或者需要依赖的类，无需上下文，无需inheritedWidget。
+
+```js
+//注入依赖
+Controller controller = Get.put(Controller()); 
+// 而不是 Controller controller = Controller();
+说明: Get实例中实例化它，而不是在你正在使用的类中实例化你的类，这将使它在整个App中可用。
+//获取依赖：
+Get.find<PutController>();
+```
+## GetX通过Get依赖管理器提供如下4种手动注入依赖的方式:
+
+-   Get.put()\
+    立即注入内存的注入方法(最常用), 调用后已经注入到内存中, 例如:
+
+```js
+Get.put<SomeClass>(SomeClass());
+Get.put<LoginController>(LoginController(), permanent: true);
+Get.put<ListItemController>(ListItemController, tag: "some unique string");
+//使用put时可以设置的所有选项:
+Get.put<S>(
+  // 必备：要注入的类。
+  // 注：" S "意味着它可以是任何类型的类。
+  S dependency
+
+  // 可选：想要注入多个相同类型的类时，可以用这个方法。
+  // 比如有两个购物车实例，就需要使用标签区分不同的实例。
+  // 必须是唯一的字符串。
+  String tag,
+
+  // 可选：默认情况下，get会在实例不再使用后进行销毁
+  // （例如：一个已经销毁的视图的Controller)
+  // 如果需要这个实例在整个应用生命周期中都存在，就像一个sharedPreferences的实例。
+  // 默认值为false
+  bool permanent = false,
+
+  // 可选：允许你在测试中使用一个抽象类后，用另一个抽象类代替它，然后再进行测试。
+  // 默认为false
+  bool overrideAbstract = false,
+
+  // 可选：允许你使用函数而不是依赖（dependency）本身来创建依赖。
+  // 这个不常用
+  InstanceBuilderCallback<S> builder,
+)
+```
+`permanent`是代表是否不销毁。通常`Get.put()`的实例的生命周期和 put 所在的 Widget 生命周期绑定，如果在全局 （main 方法里）put，那么这个实例就一直存在。如果在一个 Widget 里 put ，那么这个那么这个 Widget 从内存中删除，这个实例也会被销毁。
+
+-   Get.lazyPut()\
+    懒加载一个依赖，只有在使用时才会被实例化。适用于不确定是否会被使用的依赖或者计算高昂的依赖。类似 Kotlin 的 Lazy 代理。, 例如:
+
+```js
+///只有当第一次使用Get.find<ApiMock>时，ApiMock才会被调用。
+Get.lazyPut<ApiMock>(() => ApiMock());
+
+Get.lazyPut<S>(
+  // 强制性：当你的类第一次被调用时，将被执行的方法。
+  InstanceBuilderCallback builder,
+  // 可选：和Get.put()一样，当你想让同一个类有多个不同的实例时，就会用到它。
+  // 必须是唯一的
+  String tag,
+  // 可选：类似于 "永久"，
+  // 不同的是，当不使用时，实例会被丢弃，但当再次需要使用时，Get会重新创建实例，
+  // 就像 bindings api 中的 "SmartManagement.keepFactory "一样。
+  // 默认值为false
+  bool fenix = false
+)
+```
+-   Get.putAsync()\
+    注入一个异步创建的实例。比如`SharedPreferences`。
+```js
+Get.putAsync<SharedPreferences>(() async {
+    final sp = await SharedPreferences.getInstance();
+    return sp;
+  });
+)
+Get.putAsync<S>(
+  // 必备：一个将被执行的异步方法，用于实例化你的类。
+  AsyncInstanceBuilderCallback<S> builder,
+  // 可选：和Get.put()一样，当你想让同一个类有多个不同的实例时，就会用到它。
+  // 必须是唯一的
+  String tag,
+  // 可选：与Get.put()相同，当你需要在整个应用程序中保持该实例的生命时使用。
+  // 默认值为false
+  bool permanent = false
+)
+```
+-   Get.create()\
+    这个方法可以创建很多实例。很少用到。可以当做`Get.put`。
+```js
+Get.create<S>(
+  // 需要：一个返回每次调用"Get.find() "都会被新建的类的函数。
+  // 示例: Get.create<YourClass>(()=>YourClass())
+  FcBuilderFunc<S> builder,
+  // 可选：就像Get.put()一样，但当你需要多个同类的实例时，会用到它。
+  // 当你有一个列表，每个项目都需要自己的控制器时，这很有用。
+  // 需要是一个唯一的字符串。只要把标签改成名字
+  String name,
+  // 可选：就像 Get.put() 一样，
+  // 它是为了当你需要在整个应用中保活实例的时候
+  // 区别在于 Get.create 的 permanent默认为true
+  bool permanent = true
+```
+## GetX通过Bindings类提供的自动注入依赖的方式:
+上述通过Get实现的依赖注入和使用, 为了生命周期和使用的 Widget 绑定，需要在 Widget 里注入和使用，并没有完全解耦。要实现自动注入，就需要这个Bindings类。
+### Bindings类
+
+-   创建一个类并实现Binding,IDE会自动重写 "dependencies"方法，然后插入在该路由上使用的所有类。
+
+```
+class DetailsBinding implements Bindings {
+  @override
+  void dependencies() {
+    Get.lazyPut<DetailsController>(() => DetailsController());
+  }
+}
+```
+-   通知路由，使用该 Binding 来建立路由管理器、依赖关系和状态之间的连接。
+
+-   使用别名路由：
+
+```
+getPages: [
+  GetPage(
+    name: '/details',
+    page: () => DetailsView(),
+    binding: DetailsBinding(),
+  ),
+];
+```
+
+-   使用正常路由。
+
+```
+Get.to(DetailsView(), binding: DetailsBinding())
+```
+
+至此，就不必再担心应用程序的内存管理，Get会自动做这件事。
+
+上面注入依赖解耦了，但是获取还是略显不方便，可使用`GetView`完美的搭配 Bindings。
+
+```
+class InjectSimplePage extends GetView<InjectSimpleController> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('MyPage')),
+      body: Center(
+        child: Obx(() => Text(controller.obj.toString())),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          controller.getAge();
+        },
+        child: Icon(Icons.add),
+      ),
+    );
+  }
+}
+```
+这里完全没有`Get.find`，但是可以直接使用`controller`，因为`GetView`里封装好了：
+
+```
+abstract class GetView<T> extends StatelessWidget {
+  const GetView({Key key}) : super(key: key);
+  final String tag = null;
+  T get controller => GetInstance().find<T>(tag: tag);
+  @override
+  Widget build(BuildContext context);
+}
+```
+
+不在需要 StatelessWidget 和 StatefulWidget。这也是开发最常用的模式，推荐大家使用。
+
+如果每次声明一个 Bingings 类也很麻烦，那么可以使用 BindingsBuilder ，这样就可以简单地使用一个函数来实例化任何想要注入的东西。
+
+```
+  GetPage(
+    name: '/details',
+    page: () => DetailsView(),
+    binding: BindingsBuilder(() => {
+      Get.lazyPut<DetailsController>(() => DetailsController());
+    }),
+```
+上述两种方式都可以，可根据自己的编码习惯选择最适合的风格。
+### Bindings的工作原理
+
+Bindings 会创建过渡性工厂，在点击进入另一个页面的那一刻，这些工厂就会被创建，一旦路由过渡动画发生，就会被销毁。 工厂占用的内存很少，它们并不持有实例，而是一个具有我们想要的那个类的 "形状"的函数。 这在内存上的成本很低，但由于这个库的目的是用最少的资源获得最大的性能，所以Get连工厂都默认删除。
+
+### 智能管理
+
+GetX 默认情况下会将未使用的控制器从内存中移除。 但是如果你想改变GetX控制类的销毁方式，你可以用`SmartManagement`类设置不同的行为。
+
+如何改变配置? 方法如下。
+```
+void main () {
+  runApp(
+    GetMaterialApp(
+      smartManagement: SmartManagement.onlyBuilders //这里
+      home: Home(),
+    )
+  )
+}
+```
+-   SmartManagement.full\
+    这是默认的。销毁那些没有被使用的、没有被设置为永久的类。在大多数情况下，你会希望保持这个配置不受影响。如果你是第一次使用GetX，那么不要改变这个配置。
+-   SmartManagement.onlyBuilders\
+    使用该选项，只有在`init:`中启动的控制器或用`Get.lazyPut()`加载到Binding中的控制器才会被销毁。
+
+    如果你使用`Get.put()`或`Get.putAsync()`或任何其他方法，SmartManagement将没有权限移除这个依赖。
+
+    在默认行为下，即使是用 "Get.put "实例化的widget也会被移除，这与SmartManagement.onlyBuilders不同。
+
+-   SmartManagement.keepFactory\
+    就像SmartManagement.full一样，当它不再被使用时，它将删除它的依赖关系，但它将保留它们的工厂，这意味着如果你再次需要该实例，它将重新创建该依赖关系。
