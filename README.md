@@ -1,4 +1,13 @@
-
+- [前言](#前言)
+- [GetX生态](#GetX生态)
+- [路由管理](#路由管理)
+- [StateMixin](#StateMixin)
+- [状态管理](#状态管理)
+- [GetX依赖管理](#GetX依赖管理)
+- [中间件](#中间件)
+- [Worker](#Worker)
+- [内存缓存](#内存缓存)
+- [离线存储](#离线存储)
 ## 前言
 GetX 是 Flutter 上的一个轻量且强大的解决方案：高性能的状态管理、智能的依赖注入和便捷的路由管理。
 
@@ -7,7 +16,7 @@ GetX 有三个基本的原则，分别是性能、提效和组织性。
 * **效率：** GetX 的语法非常简捷，并保持了极高的性能，能极大缩短你的开发时长。这使得开发的时间大大节省，并且保证应用性能的最大化。通常来说，开发者需要关注从内存中移除控制器。而使用 GetX 的时候，则无需这么做。当控制器不被使用的时候，资源会自动从内存中释放。如果确实需要常住内存，那就需要在依赖中声明 permanent:true。通过这种方式，可以降低内存中有过多不必要依赖对象的风险。同时，依赖默认也是懒加载。
 * **结构：** GetX 可以将界面、逻辑、依赖和路由完全解耦，用起来更清爽，逻辑更清晰，代码更容易维护。路由之间跳转无需 context，因此我们的导航不会依赖组件树。
 
-## GetX 生态
+## GetX生态
 GetX 有很多特性，使得编码变得容易。每个特性之间是相互独立的，并且只会在使用的时候才启动。例如，如果仅仅是使用状态管理，那么只有状态管理会被编译。而如果只使用路由，那么状态管理的部分就不会编译。
 GetX 有一个很大的生态，包括了大型的社区维护，大量的协作者（GitHub 上看有132位），并且承诺只要 Flutter 存在就会继续维护下去。而且 GetX 兼容 Android, iOS, Web, Mac, Linux, Windows多个平台。GetX 甚至还有服务端版本 Get_Server。
 
@@ -409,7 +418,7 @@ class PersonalStateMixinBinding implements Bindings {
   }
 }
 ```
-## GetX三大功能之依赖注入DI(dependency-injection)
+## GetX依赖管理
 ### 概念
 -   Inversion of Control: `控制反转`是一种重要的面向对象编程原则，控制反转就是，关于一个对象如何获取他所依赖的对象的引用，这个责任的反转。
 
@@ -754,7 +763,6 @@ RouteSettings redirect(String route) {
   return authService.authed.value ? null : RouteSettings(name: '/login')
 }
 ```
-
 
 ## Worker
 
